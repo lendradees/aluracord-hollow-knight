@@ -26,7 +26,7 @@ function Titulo(props) {
 export default function PaginaInicial() {
     const [username, setUsername] = React.useState('');
     const roteamento = useRouter();
-    const userURL = `https://api.github.com/useres/${username}`;
+    const userURL = `https://api.github.com/users/${username}`;
     const [userBio, setUserBio] = React.useState('');
     const [userHTML_URL, setUserHTML_URL] = React.useState('');
 
