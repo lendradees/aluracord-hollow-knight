@@ -26,9 +26,9 @@ function Titulo(props) {
 export default function PaginaInicial() {
     const [username, setUsername] = React.useState('');
     const roteamento = useRouter();
-    const userURL = `https://api.github.com/users/${username}`;
+/*     const userURL = `https://api.github.com/users/${username}`;
     const [userBio, setUserBio] = React.useState('');
-    const [userHTML_URL, setUserHTML_URL] = React.useState('');
+    const [userHTML_URL, setUserHTML_URL] = React.useState(''); */
 
 
 
@@ -82,16 +82,15 @@ const imageError = 'https://static.wikia.nocookie.net/hollowknight/images/f/f3/N
                             onChange={function handler(event) {
                                 const valor = event.target.value;
                                 if (event.target.value.length > 2) {
-                                    fetch(`${userURL}`, {method: 'GET'})
+                              /*       fetch(`${userURL}`, {method: 'GET'})
                                         .then(response => response.json)
                                         .then(data => {
                                             setUserBio(data.bio)
                                             setUserHTML_URL(data.html_url)
-                                            console.log(data.html_url)
                                         })
-                                }
+                                } */
                                 setUsername(valor);
-                            }}
+                            }}}
                             fullWidth
                             textFieldColors={{
                                 neutral: {
@@ -166,7 +165,7 @@ const imageError = 'https://static.wikia.nocookie.net/hollowknight/images/f/f3/N
                                 borderRadius: '1000px'
                             }}
                         >
-                            {userHTML_URL} 
+                            {/* {userHTML_URL}  */}
                         </Text>
                         </>
                         )} 

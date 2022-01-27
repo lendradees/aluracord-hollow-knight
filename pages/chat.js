@@ -1,23 +1,47 @@
 import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
+import { createClient } from '@supabase/supabase-js';
+
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzI4ODExMSwiZXhwIjoxOTU4ODY0MTExfQ.I33W4d1jtZCstnxVnagRIg5vPWjheb4BMxfKnIbnfs0';
+const SUPABASE_URL = 'https://fijlkaorjunsjmvnvbpr.supabase.co';
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 
 export default function ChatPage() {
     const [mensagem, setMensagem] = React.useState('');
     const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
-    // Sua lógica vai aqui
 
-    // ./Sua lógica vai aqui
+    React.useEffect(() => {
+        supabaseClient
+            .from('mensagens')
+            .select('*')
+            .order('id', { ascending: false })
+            .then(({ data }) => {
+                console.log('Dados da consulta:', data);
+                setListaDeMensagens(data);
+            });
+    }, []);
+
     function handleNovaMensagem(novaMensagem) {
         const mensagem = {
-            id: listaDeMensagens.length + 1,
+            /* id: listaDeMensagens.length + 1, */
             de: 'username',
             texto: novaMensagem,
         };
-        setListaDeMensagens([
-            mensagem,
-            ...listaDeMensagens,
-        ]);
+
+        supabaseClient
+            .from('mensagens')
+            .insert([
+                mensagem
+            ])
+            .then(({ data }) => {
+                setListaDeMensagens([
+                    data[0],
+                    ...listaDeMensagens,
+                ]);
+            });
+
         setMensagem('');
     }
     return (
@@ -98,6 +122,21 @@ export default function ChatPage() {
                                 color: appConfig.theme.colors.neutrals[200],
                             }}
                         />
+                        <Button
+                            onClick={(event) => {
+                                if (mensagem.length < 1) {
+                                    event.preventDefault();
+                                } else {
+                                    event.preventDefault();
+                                    handleNovaMensagem(mensagem);
+                                    document.querySelector('textarea').focus
+                                }
+                            }}
+                            colorVariant="positive"
+                            label="Enviar"
+                            rounded="full"
+                            type="submit"
+                        />
                     </Box>
                 </Box>
             </Box>
@@ -124,12 +163,12 @@ function Header() {
 }
 
 function MessageList(props) {
-/*     console.log(props); */
+    /*     console.log(props); */
     return (
         <Box
             tag="ul"
             styleSheet={{
-                overflow: 'scroll',
+                overflow: 'auto',
                 display: 'flex',
                 flexDirection: 'column-reverse',
                 flex: 1,
@@ -143,6 +182,7 @@ function MessageList(props) {
                         key={mensagem.id}
                         tag="li"
                         styleSheet={{
+                            borderTop: `1px solid ${appConfig.theme.colors.neutrals[700]}`,
                             borderRadius: '5px',
                             padding: '6px',
                             marginBottom: '12px',
@@ -164,7 +204,7 @@ function MessageList(props) {
                                     display: 'inline-block',
                                     marginRight: '8px',
                                 }}
-                                src={`https://github.com/vanessametonini.png`}
+                                src={`https://github.com/${mensagem.de}.png`}
                             />
                             <Text tag="strong">
                                 {mensagem.de}
