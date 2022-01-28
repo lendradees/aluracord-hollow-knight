@@ -26,9 +26,8 @@ function Titulo(props) {
 export default function PaginaInicial() {
     const [username, setUsername] = React.useState('');
     const roteamento = useRouter();
-/*     const userURL = `https://api.github.com/users/${username}`;
-    const [userBio, setUserBio] = React.useState('');
-    const [userHTML_URL, setUserHTML_URL] = React.useState(''); */
+    const userURL = `https://api.github.com/users/${username}`;
+
 
 
 
@@ -64,7 +63,7 @@ const imageError = 'https://static.wikia.nocookie.net/hollowknight/images/f/f3/N
                         as="form"
                         onSubmit={function (infosDoEvento){
                             infosDoEvento.preventDefault();
-                            roteamento.push('/chat');
+                            roteamento.push(`/chat?username=${username}`);
                         }}
                         styleSheet={{
                             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -82,15 +81,15 @@ const imageError = 'https://static.wikia.nocookie.net/hollowknight/images/f/f3/N
                             onChange={function handler(event) {
                                 const valor = event.target.value;
                                 if (event.target.value.length > 2) {
-                              /*       fetch(`${userURL}`, {method: 'GET'})
+                                    fetch(`${userURL}`, {method: 'GET'})
                                         .then(response => response.json)
-                                        .then(data => {
+                                        /* .then(data => {
                                             setUserBio(data.bio)
                                             setUserHTML_URL(data.html_url)
-                                        })
-                                } */
+                                        }) */
+                                }
                                 setUsername(valor);
-                            }}}
+                            }}
                             fullWidth
                             textFieldColors={{
                                 neutral: {

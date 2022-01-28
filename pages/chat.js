@@ -1,14 +1,37 @@
 import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
+import { useRouter } from 'next/router'
 import { createClient } from '@supabase/supabase-js';
+import { ButtonSendSticker } from '../src/components/ButtonSendSticker'
 
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzI4ODExMSwiZXhwIjoxOTU4ODY0MTExfQ.I33W4d1jtZCstnxVnagRIg5vPWjheb4BMxfKnIbnfs0';
 const SUPABASE_URL = 'https://fijlkaorjunsjmvnvbpr.supabase.co';
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+function pegaMensagensEmTempoReal(adicionaMensagem) {
+    return supabaseClient
+        .from('mensagens')
+        .on('INSERT', (respostaLive) => {
+            adicionaMensagem(respostaLive.new);
+        })
+        .subscribe();
+}
+
+/* Barra de Loading */
+import LinearProgress from '@mui/material/LinearProgress';
+
+export function LinearIndeterminate() {
+    return (
+        <Box sx={{ width: '100%' }}>
+            <LinearProgress />
+        </Box>
+    );
+}
 
 export default function ChatPage() {
+    const roteamento = useRouter();
+    const usuarioLogado = roteamento.query.username;
     const [mensagem, setMensagem] = React.useState('');
     const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
 
@@ -21,127 +44,141 @@ export default function ChatPage() {
                 console.log('Dados da consulta:', data);
                 setListaDeMensagens(data);
             });
-    }, []);
 
-    function handleNovaMensagem(novaMensagem) {
-        const mensagem = {
-            /* id: listaDeMensagens.length + 1, */
-            de: 'username',
-            texto: novaMensagem,
-        };
-
-        supabaseClient
-            .from('mensagens')
-            .insert([
-                mensagem
-            ])
-            .then(({ data }) => {
-                setListaDeMensagens([
-                    data[0],
-                    ...listaDeMensagens,
-                ]);
+        const subscription = pegaMensagensEmTempoReal((novaMensagem) => {
+            setListaDeMensagens((valorAtualDaLista) => {
+                return [
+                    novaMensagem,
+                    ...valorAtualDaLista,
+                ]
             });
-
-        setMensagem('');
+        });
+    return () => {
+        subscription.unsubscribe();
     }
-    return (
+}, []);
+
+function handleNovaMensagem(novaMensagem) {
+    const mensagem = {
+        /* id: listaDeMensagens.length + 1, */
+        de: usuarioLogado,
+        texto: novaMensagem,
+    };
+
+    supabaseClient
+        .from('mensagens')
+        .insert([
+            mensagem
+        ])
+        .then(({ data }) => {
+
+        });
+
+    setMensagem('');
+}
+return (
+    <Box
+        styleSheet={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            backgroundColor: appConfig.theme.colors.primary[550],
+            backgroundImage: `url(https://www.teahub.io/photos/full/297-2971513_hollow-knight-blue-lake.jpg)`,
+            backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundBlendMode: 'multiply',
+            color: appConfig.theme.colors.neutrals['000']
+        }}
+    >
         <Box
             styleSheet={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                backgroundColor: appConfig.theme.colors.primary[550],
-                backgroundImage: `url(https://www.teahub.io/photos/full/297-2971513_hollow-knight-blue-lake.jpg)`,
-                backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundBlendMode: 'multiply',
-                color: appConfig.theme.colors.neutrals['000']
+                display: 'flex',
+                flexDirection: 'column',
+                flex: 1,
+                boxShadow: '0 2px 10px 0 rgb(0 0 0 / 20%)',
+                borderRadius: '5px',
+                backgroundColor: appConfig.theme.colors.neutrals['750t'],
+                height: '100%',
+                maxWidth: '95%',
+                maxHeight: '95vh',
+                padding: '32px',
             }}
         >
+            <Header />
             <Box
                 styleSheet={{
+                    position: 'relative',
                     display: 'flex',
-                    flexDirection: 'column',
                     flex: 1,
-                    boxShadow: '0 2px 10px 0 rgb(0 0 0 / 20%)',
+                    height: '80%',
+                    backgroundColor: appConfig.theme.colors.neutrals['600t'],
+                    flexDirection: 'column',
                     borderRadius: '5px',
-                    backgroundColor: appConfig.theme.colors.neutrals['750t'],
-                    height: '100%',
-                    maxWidth: '95%',
-                    maxHeight: '95vh',
-                    padding: '32px',
+                    padding: '16px',
                 }}
             >
-                <Header />
-                <Box
-                    styleSheet={{
-                        position: 'relative',
-                        display: 'flex',
-                        flex: 1,
-                        height: '80%',
-                        backgroundColor: appConfig.theme.colors.neutrals['600t'],
-                        flexDirection: 'column',
-                        borderRadius: '5px',
-                        padding: '16px',
-                    }}
-                >
 
-                    <MessageList mensagens={listaDeMensagens} />
-                    {/* {listaDeMensagens.map((mensagemAtual) => {
+                <MessageList mensagens={listaDeMensagens} />
+                {/* {listaDeMensagens.map((mensagemAtual) => {
                         return (
                             <li key={mensagemAtual.id}>
                                 {mensagemAtual.de}: {mensagemAtual.texto}
                             </li>
                         )
                     })} */}
-                    <Box
-                        as="form"
-                        styleSheet={{
-                            display: 'flex',
-                            alignItems: 'center',
+                <Box
+                    as="form"
+                    styleSheet={{
+                        display: 'flex',
+                        alignItems: 'center',
+                    }}
+                >
+                    <TextField
+                        value={mensagem}
+                        onChange={(event) => {
+                            const valor = event.target.value;
+                            setMensagem(valor);
                         }}
-                    >
-                        <TextField
-                            value={mensagem}
-                            onChange={(event) => {
-                                const valor = event.target.value;
-                                setMensagem(valor);
-                            }}
-                            onKeyPress={(event) => {
-                                if (event.key === 'Enter') {
-                                    event.preventDefault();
-                                    handleNovaMensagem(mensagem);
-                                }
-                            }}
-                            placeholder="Insira sua mensagem aqui..."
-                            type="textarea"
-                            styleSheet={{
-                                width: '100%',
-                                border: '0',
-                                resize: 'none',
-                                borderRadius: '5px',
-                                padding: '6px 8px',
-                                backgroundColor: appConfig.theme.colors.neutrals[800],
-                                marginRight: '12px',
-                                color: appConfig.theme.colors.neutrals[200],
-                            }}
-                        />
-                        <Button
-                            onClick={(event) => {
-                                if (mensagem.length < 1) {
-                                    event.preventDefault();
-                                } else {
-                                    event.preventDefault();
-                                    handleNovaMensagem(mensagem);
-                                    document.querySelector('textarea').focus
-                                }
-                            }}
-                            colorVariant="positive"
-                            label="Enviar"
-                            rounded="full"
-                            type="submit"
-                        />
-                    </Box>
+                        onKeyPress={(event) => {
+                            if (event.key === 'Enter') {
+                                event.preventDefault();
+                                handleNovaMensagem(mensagem);
+                            }
+                        }}
+                        placeholder="Insira sua mensagem aqui..."
+                        type="textarea"
+                        styleSheet={{
+                            width: '100%',
+                            border: '0',
+                            resize: 'none',
+                            borderRadius: '5px',
+                            padding: '6px 8px',
+                            backgroundColor: appConfig.theme.colors.neutrals[800],
+                            marginRight: '12px',
+                            color: appConfig.theme.colors.neutrals[200],
+                        }}
+                    />
+                    <ButtonSendSticker
+                        onStickerClicker={(sticker) => (
+                            handleNovaMensagem(':sticker:' + sticker)
+                        )}
+                    />
+                    <Button
+                        onClick={(event) => {
+                            if (mensagem.length < 1) {
+                                event.preventDefault();
+                            } else {
+                                event.preventDefault();
+                                handleNovaMensagem(mensagem);
+                                document.querySelector('textarea').focus
+                            }
+                        }}
+                        colorVariant="positive"
+                        label="Enviar"
+                        rounded="full"
+                        type="submit"
+                    />
                 </Box>
             </Box>
         </Box>
-    )
+    </Box>
+)
 }
 
 function Header() {
@@ -220,7 +257,14 @@ function MessageList(props) {
                                 {(new Date().toLocaleDateString())}
                             </Text>
                         </Box>
-                        {mensagem.texto}
+                        {/*  Condicional {mensagem.texto.startsWith(':sticker:').toString()} */}
+                        {mensagem.texto.startsWith(':sticker:')
+                            ? (
+                                <Image src={mensagem.texto.replace(':sticker:', '')} />
+                            )
+                            : (
+                                mensagem.texto
+                            )}
                     </Text>
                 );
             })}
