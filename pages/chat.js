@@ -3,7 +3,8 @@ import React from 'react';
 import appConfig from '../config.json';
 import { useRouter } from 'next/router'
 import { createClient } from '@supabase/supabase-js';
-import { ButtonSendSticker } from '../src/components/ButtonSendSticker'
+import { ButtonSendSticker } from '../src/components/ButtonSendSticker';
+import LinearProgress from '@mui/material/LinearProgress';
 
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzI4ODExMSwiZXhwIjoxOTU4ODY0MTExfQ.I33W4d1jtZCstnxVnagRIg5vPWjheb4BMxfKnIbnfs0';
 const SUPABASE_URL = 'https://fijlkaorjunsjmvnvbpr.supabase.co';
@@ -19,11 +20,9 @@ function pegaMensagensEmTempoReal(adicionaMensagem) {
 }
 
 /* Barra de Loading */
-import LinearProgress from '@mui/material/LinearProgress';
-
 export function LinearIndeterminate() {
     return (
-        <Box sx={{ width: '100%' }}>
+        <Box sx={{ width: '70%' }}>
             <LinearProgress />
         </Box>
     );
@@ -60,7 +59,6 @@ export default function ChatPage() {
 
 function handleNovaMensagem(novaMensagem) {
     const mensagem = {
-        /* id: listaDeMensagens.length + 1, */
         de: usuarioLogado,
         texto: novaMensagem,
     };
@@ -113,15 +111,7 @@ return (
                     padding: '16px',
                 }}
             >
-
                 <MessageList mensagens={listaDeMensagens} />
-                {/* {listaDeMensagens.map((mensagemAtual) => {
-                        return (
-                            <li key={mensagemAtual.id}>
-                                {mensagemAtual.de}: {mensagemAtual.texto}
-                            </li>
-                        )
-                    })} */}
                 <Box
                     as="form"
                     styleSheet={{
@@ -155,11 +145,16 @@ return (
                         }}
                     />
                     <ButtonSendSticker
-                        onStickerClicker={(sticker) => (
-                            handleNovaMensagem(':sticker:' + sticker)
+                        onStickerClick={(sticker) => (
+                            handleNovaMensagem(':sticker: ' + sticker)
                         )}
                     />
                     <Button
+                        styleSheet={{
+                            backgroundColor: appConfig.theme.colors.neutrals[400],
+                            margin: '5px',
+                            height: '40px',
+                        }}
                         onClick={(event) => {
                             if (mensagem.length < 1) {
                                 event.preventDefault();
@@ -200,7 +195,6 @@ function Header() {
 }
 
 function MessageList(props) {
-    /*     console.log(props); */
     return (
         <Box
             tag="ul"
@@ -235,8 +229,8 @@ function MessageList(props) {
                         >
                             <Image
                                 styleSheet={{
-                                    width: '20px',
-                                    height: '20px',
+                                    width: '30px',
+                                    height: '30px',
                                     borderRadius: '50%',
                                     display: 'inline-block',
                                     marginRight: '8px',
@@ -257,10 +251,14 @@ function MessageList(props) {
                                 {(new Date().toLocaleDateString())}
                             </Text>
                         </Box>
-                        {/*  Condicional {mensagem.texto.startsWith(':sticker:').toString()} */}
                         {mensagem.texto.startsWith(':sticker:')
                             ? (
-                                <Image src={mensagem.texto.replace(':sticker:', '')} />
+                                <Image 
+                                    styleSheet={{
+                                        width: '20%'
+                                    }}    
+                                    src={mensagem.texto.replace(':sticker:', '')}
+                                />
                             )
                             : (
                                 mensagem.texto

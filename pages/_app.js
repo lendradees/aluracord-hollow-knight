@@ -1,3 +1,5 @@
+import Head from 'next/head'
+
 function GlobalStyle() {
     return (
         <style global jsx>{`
@@ -42,6 +44,10 @@ export default function CustomApp({ Component, pageProps }) {
     return (
     <>
         <GlobalStyle />
+        <Head>
+          <tittle> Aluracord- Hollow Knight</tittle>
+          <link rel='icon' href='https://cdn2.steamgriddb.com/file/sgdb-cdn/icon/602d1305678a8d5fdb372271e980da6a/32/192x192.png' />
+        </Head>
         <Component {...pageProps} />
     </>)
 }

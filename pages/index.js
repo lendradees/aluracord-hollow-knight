@@ -76,7 +76,7 @@ const imageError = 'https://static.wikia.nocookie.net/hollowknight/images/f/f3/N
                         </Text>
                         
                         <TextField
-                            placeholder="Insira o seu UserName"
+                            placeholder="Insira o seu UserName do GitHub"
                             value={username}
                             onChange={function handler(event) {
                                 const valor = event.target.value;
